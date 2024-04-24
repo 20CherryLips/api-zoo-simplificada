@@ -125,7 +125,7 @@ export class Atracao {
         let insertResult = false;
         let queryInsertAtracao: string;
         try {
-            if(!idHabitat) {
+            if (!idHabitat) {
                 // Construção da query para inserir as informações de um Mamifero. A query irá retornar o ID gerado para o animal pelo banco de dados
                 queryInsertAtracao = `INSERT INTO atracao (nomeatracao) 
                                             VALUES 
@@ -157,12 +157,12 @@ export class Atracao {
         }
     }
 
-      /**
-     * Remove uma atração do banco de dados
-     * @param idAtracao ID da atração a ser removida
-     * @returns **true** caso deletada, **false** caso erro na função
-     */
-      static async removerAtracao(idAtracao: number): Promise<Boolean> {
+    /**
+   * Remove uma atração do banco de dados
+   * @param idAtracao ID da atração a ser removida
+   * @returns **true** caso deletada, **false** caso erro na função
+   */
+    static async removerAtracao(idAtracao: number): Promise<Boolean> {
         let queryResult = false;
 
         try {
@@ -182,6 +182,42 @@ export class Atracao {
             return queryResult;
         } catch (error) {
             console.log(`Erro na consulta: ${error}`);
+            return queryResult;
+        }
+    }
+
+    /**
+ * Atualiza as informações de uma atração no banco de dados
+ * @param _nome O nome da atração.
+ * @param idAtracao id da atração
+ * @returns **true** caso a atualização seja feita, **false** caso ocorra algum problema
+ */
+    static async atualizarAtracao(atracao: Atracao, idAtracao: number): Promise<Boolean> {
+        // Variável para controlar o resultado da função
+        let queryResult = false;
+
+        try {
+            // Query para atualizar a atração na tabela atração
+            const queryUpdateAtracao = `UPDATE atracao SET
+                                        nomeAtracao='${atracao.getNomeAtracao().toUpperCase()}'
+                                    WHERE idAtracao=${idAtracao}`;
+
+            // Executar a query
+            await database.query(queryUpdateAtracao)
+                // Testar o resultado da query
+                .then((result) => {
+                    // Se o resultado for diferente de zero, a query foi executada com sucesso
+                    if (result.rowCount !== 0) {
+                        // atribui o valor VERDADEIRO a queryResult                 
+                        queryResult = true;
+                    }
+                })
+            // Retorna o resultado da função
+            return queryResult;
+        } catch (error) {
+            // Exibe o erro no console
+            console.log(`Erro na consulta: ${error}`);
+            // Retorna a variável queryResult com valor FALSE
             return queryResult;
         }
     }

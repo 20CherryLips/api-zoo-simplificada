@@ -131,25 +131,60 @@ server.delete('/remover/animal', async (req, res) => {
     }
 });
 
-server.delete('/remover/atracao', async(req, res) => {
-    const idAtracao = parseInt(req.query.idAtracao as string);
-    const resultado = await Atracao.removerAtracao(idAtracao);
+server.put('/atualizar/animal', async (req, res) => {
+    // Desestruturando objeto recebido pelo front-end
+    const { nome, idade, genero, envergadura } = req.body;
+    const idAnimal = parseInt(req.query.idAnimal as string);
 
-    if(resultado){
-        res.status(200).json('Atração removida com sucesso');
-    }else{
-        res.status(401).json('Erro ao remover atração');
+    // Instanciando objeto Ave
+    const novaAve = new Ave(nome, idade, genero, envergadura);
+
+    // Chama o método para persistir a ave no banco de dados
+    const result = await Ave.atualizarAve(novaAve, idAnimal);
+
+    // Verifica se a query foi executada com sucesso
+    if (result) {
+        return res.status(200).json('Ave atualizada com sucesso');
+    } else {
+        return res.status(400).json('Não foi possível atualizar a ave no banco de dados');
     }
 });
 
-server.delete('/remover/habitat', async(req, res) => {
+server.put('/atualizar/habitat', async (req, res) => {
+    // Desestruturando objeto recebido pelo front-end
+    const { nome } = req.body;
     const idHabitat = parseInt(req.query.idHabitat as string);
-    const resultado = await Habitat.removerHabitat(idHabitat);
 
-    if(resultado){
-        res.status(200).json('Habitat removida com sucesso');
-    }else{
-        res.status(401).json('Erro ao remover Habitat');
+    // Instanciando objeto Habitat
+    const novoHabitat = new Habitat( nome );
+
+    // Chama o método para persistir a Habitat no banco de dados
+    const result = await Habitat.atualizarHabitat(novoHabitat, idHabitat);
+
+    // Verifica se a query foi executada com sucesso
+    if (result) {
+        return res.status(200).json('Habitat atualizada com sucesso');
+    } else {
+        return res.status(400).json('Não foi possível atualizar a Habitat no banco de dados');
+    }
+});
+
+server.put('/atualizar/atracao', async (req, res) => {
+    // Desestruturando objeto recebido pelo front-end
+    const { nome } = req.body;
+    const idAtracao = parseInt(req.query.idAtracao as string);
+
+    // Instanciando objeto Atracao
+    const novoAtracao = new Atracao(nome);
+
+    // Chama o método para persistir a atracao no banco de dados
+    const result = await Atracao.atualizarAtracao(novoAtracao, idAtracao);
+
+    // Verifica se a query foi executada com sucesso
+    if (result) {
+        return res.status(200).json('Atracao atualizada com sucesso');
+    } else {
+        return res.status(400).json('Não foi possível atualizar a atracao no banco de dados');
     }
 });
 
