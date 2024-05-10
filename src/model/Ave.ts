@@ -7,7 +7,7 @@ import { Habitat } from "./Habitat";
  */
 const database = new DatabaseModel().pool;
 
-/**
+/** 
  * Representa uma ave no zoológico.
  * Estende a classe Animal.
  */
@@ -143,23 +143,16 @@ export class Ave extends Animal {
             // Executando a query
             await database.query(queryDeleteAnimalHabitat)
             // Testar o resultado da query
+
+            // Query para remover o animal da tabela animal
+            const queryDeleteAnimal = `DELETE FROM animal WHERE idanimal=${idAnimal}`;
+            // Executa a query
+            await database.query(queryDeleteAnimal)
             .then(async (result) => {
                 // Se o resultado for diferente de zero, a query foi executada com sucesso
                 if(result.rowCount != 0) {
-                    // Se a query for executado com sucesso, agora irá remover o animal tabela animal
-
-                    // Query para remover o animal da tabela animal
-                    const queryDeleteAnimal = `DELETE FROM animal WHERE idanimal=${idAnimal}`;
-                    // Executa a query
-                    await database.query(queryDeleteAnimal)
-                    // Testar o resultado da query
-                    .then((result) => {
-                        // Se o resultado for diferente de zero, a query foi executada com sucesso
-                        if(result.rowCount != 0) {
-                            // atribui o valor VERDADEIRO a queryResult
-                            queryResult = true;
-                        }
-                    })
+                    // atribui o valor VERDADEIRO a queryResult
+                    queryResult = true;
                 }
             })
 
