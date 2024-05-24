@@ -138,7 +138,7 @@ export class Habitat {
      * 
      * @returns Lista com todos os habitats cadastrados e os animais vinculados a eles
      */
-    static async exibirAnimaisPorHabitat(idHabitat: number): Promise<any> {
+    static async exibirAnimaisPorHabitat(idHabitat: number) : Promise<any> {
         try {
             // Retorna todos os animais de um Habitat (informado como parâmetro). Caso o Habitat não tenha nenhum animal é retornado uma lista vazia
             const querySelectHabitatsComAnimais = `
@@ -160,7 +160,7 @@ export class Habitat {
                 ORDER BY
                     h.idHabitat, a.idAnimal;
             `;
-
+            
             const queryReturn = await database.query(querySelectHabitatsComAnimais);
             return queryReturn.rows;
         } catch (error) {
@@ -207,78 +207,90 @@ export class Habitat {
     }
 
     /**
-    * Remove um habitat do banco de dados
-    * @param idHabitat ID do habitat a ser removido
-    * @returns **true** caso deletado, **false** caso erro na função
-    */
+     * Remove um habitat do banco de dados
+     * @param idHabitat id do habitat
+     * @returns **true** caso deletado, **false** caso erro na função
+     */
     static async removerHabitat(idHabitat: number): Promise<Boolean> {
+        // Variável para controlar o resultado da função
         let queryResult = false;
 
         try {
-            // Query para remover o habitat da tabela habitat
-            const queryDeleteHabitat = `DELETE FROM animal_habitat WHERE idHabitat = ${idHabitat}`;
-
+            // Query para deletar o habitat da tabela atracao
+            const queryDeleteHabitatAtracao = `DELETE FROM atracao WHERE idHabitat=${idHabitat};`;
             // Executando a query
-            await database.query(queryDeleteHabitat)
-                .then(async (result) => {
-                    // Se o resultado for diferente de zero, a query foi executada com sucesso
-                    if (result.rowCount != 0) {
-                        const queryDeleteHabitatAtracao = `DELETE FROM atracao WHERE idhabitat=${idHabitat}`
-
-                        await database.query(queryDeleteHabitatAtracao)
+            await database.query(queryDeleteHabitatAtracao)
+            // Testar o resultado da query
+            .then(async (result) => {
+                // Se o resultado for diferente de zero, a query foi executada com sucesso
+                if (result.rowCount != 0) {
+                    // Query para deletar o habitat da tabela animal_habitat
+                    const queryDeleteHabitatAnimalHabitat = `DELETE FROM animal_habitat WHERE idHabitat=${idHabitat};`;
+                    // Executando a query
+                    await database.query(queryDeleteHabitatAnimalHabitat)
+                    // Testar o resultado da query
+                    .then(async (result) => {
+                        // Se o resultado for diferente de zero, a query foi executada com sucesso
+                        if (result.rowCount != 0) {
+                            // Query para deletar o habitat da tabela habitat
+                            const queryDeleteHabitat = `DELETE FROM habitat WHERE idHabitat=${idHabitat};`;
+                            // Executando a query
+                            await database.query(queryDeleteHabitat)
+                            // Testar o resultado da query
                             .then(async (result) => {
+                                // Se o resultado for diferente de zero, a query foi executada com sucesso
                                 if (result.rowCount != 0) {
-                                    const queryDeleteHabitat = `DELETE FROM habitat WHERE idhabitat=${idHabitat}`;
-                                    await database.query(queryDeleteHabitat)
-                                        .then((result) => {
-                                            if (result.rowCount != 0) {
-                                                queryResult = true;
-                                            }
-                                        })
+                                    // atribui o valor VERDADEIRO a queryResult
+                                    queryResult = true;
                                 }
                             })
-                    }
-                });
-
+                        }
+                    })
+                }
+            })
             // Retorna o resultado da função
             return queryResult;
+        // Caso ocorra algum erro
         } catch (error) {
-            console.log(`Erro na consulta: ${error}`);
+            // Exibe o erro no console
+            console.log(`Erro: ${error}`);
+            // Retorna a variável queryResult com valor FALSE
             return queryResult;
         }
     }
 
     /**
-   * Atualiza as informações de um habitat no banco de dados
-   * @param _nome O nome do habitat.
-   * @returns **true** caso a atualização seja feita, **false** caso ocorra algum problema
-   */
+     * Atualiza as informações de um habitat no banco de dados
+     * 
+     * @param habitat Objeto habitat contendo as informações
+     * @param idHabitat id do habitat a ser alterado
+     * @returns **true** caso a atualização seja feita, **false** caso ocorra algum problema
+     */
     static async atualizarHabitat(habitat: Habitat, idHabitat: number): Promise<Boolean> {
         // Variável para controlar o resultado da função
         let queryResult = false;
 
         try {
-
-            // Query para atualizar o habitat na tabela habitat
+            // Query para alterar o animal da tabela animal
             const queryUpdateHabitat = `UPDATE habitat SET
-                                        nomeHabitat='${habitat.getNomeHabitat().toUpperCase()}'
-                                    WHERE idHabitat=${idHabitat}`;
+                                        nomehabitat='${habitat.getNomeHabitat().toUpperCase()}'
+                                        WHERE idhabitat=${idHabitat};`;
 
-            // Executar a query
+            // Executa a query
             await database.query(queryUpdateHabitat)
-                // Testar o resultado da query
-                .then((result) => {
-                    // Se o resultado for diferente de zero, a query foi executada com sucesso
-                    if (result.rowCount !== 0) {
-                        // atribui o valor VERDADEIRO a queryResult                 
-                        queryResult = true;
-                    }
-                })
+            // Testar o resultado da query
+            .then((result) => {
+                // Se o resultado for diferente de zero, a query foi executada com sucesso
+                if(result.rowCount !== 0) {
+                    // atribui o valor VERDADEIRO a queryResult 
+                    queryResult = true;
+                }
+            })
             // Retorna o resultado da função
             return queryResult;
         } catch (error) {
             // Exibe o erro no console
-            console.log(`Erro na consulta: ${error}`);
+            console.log(`Erro: ${error}`);
             // Retorna a variável queryResult com valor FALSE
             return queryResult;
         }

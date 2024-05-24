@@ -1,3 +1,4 @@
+import { query } from "express";
 import { DatabaseModel } from "./DatabaseModel";
 import { Habitat } from "./Habitat";
 
@@ -107,7 +108,7 @@ export class Atracao {
      * @param atracao Objeto do tipo Atracao
      * @returns **true** caso sucesso, **false** caso erro
      */
-    static async cadastrarAtracao(atracao: Atracao): Promise<any>;
+    static async cadastrarAtracao(atracao: Atracao): Promise<boolean>;
     /**
      * Cadastra um objeto do tipo Atracao no banco de dados
      * 
@@ -115,17 +116,17 @@ export class Atracao {
      * @param idHabitat Id do habitat ao qual a atracão pertence
      * @returns **true** caso sucesso, **false** caso erro
      */
-    static async cadastrarAtracao(atracao: Atracao, idHabitat: Habitat): Promise<any>;
+    static async cadastrarAtracao(atracao: Atracao, idHabitat: Habitat): Promise<boolean>;
 
     /**
      * Implementação da classe cadastrarAtracao
      */
-    static async cadastrarAtracao(atracao: Atracao, idHabitat?: Habitat): Promise<any> {
+    static async cadastrarAtracao(atracao: Atracao, idHabitat?: Habitat): Promise<boolean> {
         // Cria uma variável do tipo booleano para guardar o status do resultado da query
         let insertResult = false;
         let queryInsertAtracao: string;
         try {
-            if (!idHabitat) {
+            if(!idHabitat) {
                 // Construção da query para inserir as informações de um Mamifero. A query irá retornar o ID gerado para o animal pelo banco de dados
                 queryInsertAtracao = `INSERT INTO atracao (nomeatracao) 
                                             VALUES 
@@ -158,65 +159,73 @@ export class Atracao {
     }
 
     /**
-   * Remove uma atração do banco de dados
-   * @param idAtracao ID da atração a ser removida
-   * @returns **true** caso deletada, **false** caso erro na função
-   */
+     * Remove uma atração do banco de dados
+     * 
+     * @param idAtracao ID da atração
+     * @returns **true** caso sucesso, **false** caso erro
+     */
     static async removerAtracao(idAtracao: number): Promise<Boolean> {
-        let queryResult = false;
+        // Variável para controlar o resultado da função 
+        let queryResult = true;
 
         try {
-            // Query para remover a atração da tabela atração
-            const queryDeleteAtracao = `DELETE FROM atracao WHERE idAtracao = ${idAtracao}`;
-
+            // Query para deletar a atração da tabela atracao
+            const queryDeleteAtracao = `DELETE FROM atracao WHERE idatracao=${idAtracao};`;
+            
             // Executando a query
             await database.query(queryDeleteAtracao)
-                .then((result) => {
-                    // Se o resultado for diferente de zero, a query foi executada com sucesso
-                    if (result.rowCount != 0) {
-                        queryResult = true;
-                    }
-                });
+            // Testar o resultado da query
+            .then(async (result) => {
+                // Se o resultado for diferente de zero, a query foi executada com sucesso
+                if(result.rowCount !== 0) {
+                    // atribui o valor VERDADEIRO a queryResult
+                    queryResult = true;
+                }
+            })
 
-            // Retorna o resultado da função=
+            // Retorna o resultado da função
             return queryResult;
+        // Caso ocorra algum erro
         } catch (error) {
-            console.log(`Erro na consulta: ${error}`);
+            // Exibe o erro no console
+            console.log(`Erro: ${error}`);
+            // Retorna a variável queryResult com valor FALSE
             return queryResult;
         }
     }
 
     /**
- * Atualiza as informações de uma atração no banco de dados
- * @param _nome O nome da atração.
- * @param idAtracao id da atração
- * @returns **true** caso a atualização seja feita, **false** caso ocorra algum problema
- */
+     * Atualiza as informações da atração
+     * 
+     * @param atracao Objeto atracao contendo as informações
+     * @param idAtracao ID da atração a ser alterada
+     * @returns **true** caso a atualização seja feita, **false** caso ocorra algum problema
+     */
     static async atualizarAtracao(atracao: Atracao, idAtracao: number): Promise<Boolean> {
         // Variável para controlar o resultado da função
         let queryResult = false;
 
         try {
-            // Query para atualizar a atração na tabela atração
+            // Query para alterar a atração da tabela atração
             const queryUpdateAtracao = `UPDATE atracao SET
-                                        nomeAtracao='${atracao.getNomeAtracao().toUpperCase()}'
-                                    WHERE idAtracao=${idAtracao}`;
+                                        nomeatracao='${atracao.getNomeAtracao().toUpperCase()}'
+                                        WHERE idatracao=${idAtracao};`;
 
-            // Executar a query
+            // Executa a query
             await database.query(queryUpdateAtracao)
-                // Testar o resultado da query
-                .then((result) => {
-                    // Se o resultado for diferente de zero, a query foi executada com sucesso
-                    if (result.rowCount !== 0) {
-                        // atribui o valor VERDADEIRO a queryResult                 
-                        queryResult = true;
-                    }
-                })
+            // Testar o resultado da query
+            .then((result) => {
+                // Se o resultado for diferente de zero, a query foi executada com sucesso
+                if(result.rowCount !== 0) {
+                    // atribui o valor VERDADEIRO a queryResult
+                    queryResult = true;
+                }
+            })
             // Retorna o resultado da função
             return queryResult;
         } catch (error) {
             // Exibe o erro no console
-            console.log(`Erro na consulta: ${error}`);
+            console.log(`Erro: ${error}`);
             // Retorna a variável queryResult com valor FALSE
             return queryResult;
         }
